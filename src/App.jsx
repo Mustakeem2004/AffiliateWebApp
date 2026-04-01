@@ -6,15 +6,13 @@ import ProductForm from './components/ProductForm';
 import SearchBar from './components/SearchBar';
 import AdminLogin from './components/AdminLogin';
 import Toast from './components/Toast';
-import { loadProducts, saveProducts, generateId, clearProducts } from './utils/localStorage';
+import { api } from './utils/api';
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
 
 function App() {
-  const [products, setProducts] = useState(() => {
-    const stored = loadProducts();
-    return stored.length > 0 ? stored : [];
-  });
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('newest');
@@ -28,9 +26,22 @@ function App() {
   });
   const [toast, setToast] = useState(null);
 
+  // Fetch products from API
   useEffect(() => {
-    saveProducts(products);
-  }, [products]);
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await api.getProducts();
+      setProducts(data);
+    } catch (error) {
+      showToast('Failed to load products', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -80,39 +91,47 @@ function App() {
     return filtered;
   }, [products, searchTerm, selectedCategory, sortBy]);
 
-  const addProduct = (productData) => {
-    const newProduct = {
-      ...productData,
-      id: generateId(),
-      createdAt: new Date().toISOString(),
-    };
-    setProducts([newProduct, ...products]);
-    setShowForm(false);
-    showToast('Product added!');
+  const addProduct = async (productData) => {
+    try {
+      const newProduct = await api.addProduct(productData);
+      setProducts([newProduct, ...products]);
+      setShowForm(false);
+      showToast('Product added!');
+    } catch (error) {
+      showToast('Failed to add product', 'error');
+    }
   };
 
-  const updateProduct = (updatedProduct) => {
-    setProducts(
-      products.map((p) =>
-        p.id === updatedProduct.id ? { ...updatedProduct, updatedAt: new Date().toISOString() } : p
-      )
-    );
-    setEditingProduct(null);
-    setShowForm(false);
-    showToast('Product updated!');
+  const updateProduct = async (updatedProduct) => {
+    try {
+      const id = updatedProduct._id || updatedProduct.id;
+      const updated = await api.updateProduct(id, updatedProduct);
+      setProducts(products.map((p) => (p._id === id || p.id === id) ? updated : p));
+      setEditingProduct(null);
+      setShowForm(false);
+      showToast('Product updated!');
+    } catch (error) {
+      showToast('Failed to update product', 'error');
+    }
   };
 
-  const deleteProduct = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
-    showToast('Product deleted!', 'info');
+  const deleteProduct = async (id) => {
+    try {
+      await api.deleteProduct(id);
+      setProducts(products.filter((p) => p._id !== id && p.id !== id));
+      showToast('Product deleted!', 'info');
+    } catch (error) {
+      showToast('Failed to delete product', 'error');
+    }
   };
 
-  const toggleFeatured = (id) => {
-    setProducts(
-      products.map((p) =>
-        p.id === id ? { ...p, featured: !p.featured } : p
-      )
-    );
+  const toggleFeatured = async (id) => {
+    try {
+      const updated = await api.toggleFeatured(id);
+      setProducts(products.map((p) => (p._id === id || p.id === id) ? updated : p));
+    } catch (error) {
+      showToast('Failed to update product', 'error');
+    }
   };
 
   const handleEdit = (product) => {
@@ -126,11 +145,15 @@ function App() {
     setShowForm(false);
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
     if (window.confirm('Delete ALL products?')) {
-      setProducts([]);
-      clearProducts();
-      showToast('All products cleared!', 'info');
+      try {
+        await api.clearAll();
+        setProducts([]);
+        showToast('All products cleared!', 'info');
+      } catch (error) {
+        showToast('Failed to clear products', 'error');
+      }
     }
   };
 
@@ -146,20 +169,20 @@ function App() {
     showToast('Exported!');
   };
 
-  const handleImport = (event) => {
+  const handleImport = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const imported = JSON.parse(e.target.result);
         if (Array.isArray(imported)) {
-          const withIds = imported.map((p) => ({
-            ...p,
-            id: p.id || generateId(),
-          }));
-          setProducts([...withIds, ...products]);
+          for (const product of imported) {
+            const { _id, id, ...productData } = product;
+            await api.addProduct(productData);
+          }
+          await fetchProducts();
           showToast(`Imported ${imported.length} products!`);
         }
       } catch {
@@ -189,6 +212,17 @@ function App() {
     setSelectedCategory('');
     setSortBy('newest');
   };
+
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>Loading products...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
@@ -295,7 +329,7 @@ function App() {
                 {showForm && (
                   <div className="mb-6">
                     <ProductForm
-                      key={editingProduct?.id || 'new'}
+                      key={editingProduct?._id || editingProduct?.id || 'new'}
                       addProduct={addProduct}
                       editingProduct={editingProduct}
                       updateProduct={updateProduct}

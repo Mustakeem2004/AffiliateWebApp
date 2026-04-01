@@ -15,7 +15,7 @@ const ProductList = ({ products, onEdit, onDelete, onToggleFeatured, isAdmin = f
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {products.map((product) => (
         <div
-          key={product.id}
+          key={product._id || product.id}
           className={`rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl ${
             darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md'
           }`}
@@ -42,7 +42,7 @@ const ProductList = ({ products, onEdit, onDelete, onToggleFeatured, isAdmin = f
             {isAdmin && (
               <div className="absolute top-3 right-3 flex gap-1.5">
                 <button
-                  onClick={() => onToggleFeatured?.(product.id)}
+                  onClick={() => onToggleFeatured?.(product._id || product.id)}
                   className={`p-2 rounded-lg backdrop-blur-sm transition-all ${
                     product.featured 
                       ? 'bg-orange-500 text-white' 
@@ -60,7 +60,7 @@ const ProductList = ({ products, onEdit, onDelete, onToggleFeatured, isAdmin = f
                   ✏️
                 </button>
                 <button
-                  onClick={() => window.confirm(`Delete "${product.name}"?`) && onDelete(product.id)}
+                  onClick={() => window.confirm(`Delete "${product.name}"?`) && onDelete(product._id || product.id)}
                   className="p-2 rounded-lg bg-white/90 text-red-600 hover:bg-red-500 hover:text-white backdrop-blur-sm"
                   title="Delete"
                 >
