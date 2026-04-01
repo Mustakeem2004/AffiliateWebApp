@@ -21,11 +21,11 @@ const ProductList = ({ products, onEdit, onDelete, onToggleFeatured, isAdmin = f
           }`}
         >
           {/* Image */}
-          <div className="relative aspect-square overflow-hidden">
+          <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 e.target.src = 'https://via.placeholder.com/400x400?text=No+Image';
               }}
