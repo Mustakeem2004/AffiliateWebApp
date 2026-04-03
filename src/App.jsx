@@ -13,6 +13,7 @@ const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
 function App() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('newest');
@@ -34,9 +35,12 @@ function App() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      setApiError(null);
       const data = await api.getProducts();
-      setProducts(data);
+      setProducts(data || []);
     } catch (error) {
+      console.error('Failed to load products:', error);
+      setApiError('Failed to load products. Please check your connection.');
       showToast('Failed to load products', 'error');
     } finally {
       setLoading(false);
@@ -219,6 +223,23 @@ function App() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (apiError) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="text-center">
+          <p className="text-4xl mb-4">⚠️</p>
+          <p className={`text-lg mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{apiError}</p>
+          <button 
+            onClick={fetchProducts}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
