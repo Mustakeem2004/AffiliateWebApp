@@ -37,7 +37,8 @@ async function fetchWithRetry(url, options = {}, retries = 2, timeout = 15000) {
 export const api = {
   // Get all products
   async getProducts() {
-    const res = await fetchWithRetry(`${API_URL}/api/products`, {}, 2, 15000);
+    // Use 30s timeout for first load (cold start), then 15s for retries
+    const res = await fetchWithRetry(`${API_URL}/api/products`, {}, 2, 30000);
     return res.json();
   },
 
