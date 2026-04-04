@@ -252,7 +252,14 @@ function App() {
           <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <Header darkMode={darkMode} setDarkMode={setDarkMode} />
             <main className="container mx-auto px-4 py-6 max-w-6xl">
-              
+              {/* Affiliate Disclosure */}
+              <div className={`mb-6 p-4 rounded-lg border ${darkMode ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-yellow-50 border-yellow-300 text-yellow-900'}`}>
+                <strong>📌 Website Disclosure</strong><br />
+                Disclosure: All links on this website are affiliate links. I may earn a small commission at no extra cost to you.<br />
+                I only share products for informational purposes. Please check reviews before purchasing.<br />
+                <span className="block mt-2">✔ 100% truthful<br />✔ No confusion</span>
+              </div>
+
               {products.length > 0 && (
                 <div className="mb-6">
                   <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} darkMode={darkMode} />
@@ -279,8 +286,6 @@ function App() {
                     className={`px-4 py-2 rounded-lg text-sm ${darkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-white text-gray-700 border-gray-200'} border`}
                   >
                     <option value="newest">Newest</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
                     <option value="name">Name</option>
                   </select>
                   {(searchTerm || selectedCategory) && (

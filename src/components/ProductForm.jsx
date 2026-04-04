@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 const ProductForm = ({ addProduct, editingProduct, updateProduct, cancelEdit, darkMode }) => {
   const [formData, setFormData] = useState({
     name: editingProduct?.name || '',
-    price: editingProduct?.price || '',
     category: editingProduct?.category || '',
     description: editingProduct?.description || '',
     amazonLink: editingProduct?.amazonLink || '',
@@ -19,7 +18,6 @@ const ProductForm = ({ addProduct, editingProduct, updateProduct, cancelEdit, da
   const validate = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Required';
-    if (!formData.price || parseFloat(formData.price) < 0) newErrors.price = 'Required';
     if (!formData.amazonLink.trim() && !formData.flipkartLink.trim()) newErrors.links = 'At least one link required';
     if (!formData.image.trim()) newErrors.image = 'Required';
     setErrors(newErrors);
@@ -32,7 +30,6 @@ const ProductForm = ({ addProduct, editingProduct, updateProduct, cancelEdit, da
 
     const productData = {
       name: formData.name.trim(),
-      price: parseFloat(formData.price),
       category: formData.category.trim() || 'General',
       description: formData.description.trim(),
       amazonLink: formData.amazonLink.trim(),
@@ -71,16 +68,6 @@ const ProductForm = ({ addProduct, editingProduct, updateProduct, cancelEdit, da
           {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
         </div>
 
-        <div>
-          <input
-            type="number"
-            placeholder="Price (₹) *"
-            value={formData.price}
-            onChange={(e) => updateField('price', e.target.value)}
-            className={inputClass}
-          />
-          {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
-        </div>
 
         <div>
           <input

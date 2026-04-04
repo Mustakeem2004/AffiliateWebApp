@@ -21,7 +21,7 @@ const ProductList = ({ products, onEdit, onDelete, onToggleFeatured, isAdmin = f
           }`}
         >
           {/* Image */}
-          <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+          <div className="relative aspect-4/3 overflow-hidden bg-gray-100">
             <img
               src={product.image}
               alt={product.name}
@@ -84,12 +84,6 @@ const ProductList = ({ products, onEdit, onDelete, onToggleFeatured, isAdmin = f
               {product.name}
             </h3>
 
-            {/* Price */}
-            {product.price > 0 && (
-              <p className="text-xl font-bold text-green-500 mb-3">
-                {formatPrice(product.price)}
-              </p>
-            )}
 
             {/* Description */}
             {product.description && (
@@ -107,7 +101,7 @@ const ProductList = ({ products, onEdit, onDelete, onToggleFeatured, isAdmin = f
                   rel="noopener noreferrer"
                   className="flex-1 bg-amber-400 hover:bg-amber-500 text-gray-900 py-2.5 rounded-lg font-semibold text-center text-sm transition-colors"
                 >
-                  Amazon
+                  Buy on Amazon
                 </a>
               )}
               {product.flipkartLink && (
