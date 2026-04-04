@@ -256,7 +256,7 @@ function App() {
               <div className={`mb-6 p-4 rounded-lg border ${darkMode ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-yellow-50 border-yellow-300 text-yellow-900'}`}>
                 <strong>📌 Website Disclosure</strong><br />
                 Disclosure: All links on this website are affiliate links. I may earn a small commission at no extra cost to you.<br />
-                I only share products for informational purposes. Please check reviews before purchasing.<br />
+                Please check reviews before purchasing.<br />
                 <span className="block mt-2">✔ 100% truthful<br />✔ No confusion</span>
               </div>
 
